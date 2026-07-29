@@ -1,9 +1,0 @@
-{
-  "cif": "13049596",
-  "legalName": "AXON SOFT SRL",
-  "brand": "AXON SOFT",
-  "website": "https://axon-soft.com",
-  "careerUrl": "https://axon-soft.com/careers/",
-  "defaultLocation": "Cluj-Napoca",
-  "scraperFile": "https://raw.githubusercontent.com/sebiboga/axon-soft-srl-nodejs-scraper/main/.github/workflows/job-seeker-ro-spider.yml"
-}

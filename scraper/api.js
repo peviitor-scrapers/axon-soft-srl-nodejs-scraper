@@ -1,0 +1,217 @@
+import fetch from "node-fetch";
+import fs from "fs";
+
+const API_BASE_URL = "https://api.peviitor.ro/v1";
+const TIMEOUT = 10000;
+
+function padCif(cif) {
+  return String(cif).padStart(8, "0");
+}
+
+export async function querySOLR(cif) {
+  const url = `${API_BASE_URL}/scraper/jobs/?cif=${encodeURIComponent(padCif(cif))}&rows=500`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "job_seeker_ro_spider" }
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API jobs query error: ${res.status} - ${text}`);
+  }
+
+  const data = await res.json();
+
+  return {
+    numFound: data.total ?? 0,
+    docs: data.data ?? []
+  };
+}
+
+export async function upsertCompany(companyDoc) {
+  const url = `${API_BASE_URL}/firme/company/add/`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "job_seeker_ro_spider"
+    },
+    body: JSON.stringify({ ...companyDoc, id: padCif(companyDoc.id) })
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API company upsert error: ${res.status} - ${text}`);
+  }
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(`API company upsert failed: ${JSON.stringify(data)}`);
+  }
+
+  console.log(`✅ Company "${companyDoc.company}" upserted via API.`);
+}
+
+export async function queryCompanySOLR(companyQuery) {
+  const cifMatch = companyQuery.match(/^id:(\d+)$/);
+  if (cifMatch) {
+    const cif = cifMatch[1];
+    const url = `${API_BASE_URL}/firme/company/?cif=${encodeURIComponent(padCif(cif))}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "job_seeker_ro_spider" }
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`API company query error: ${res.status} - ${text}`);
+    }
+
+    const data = await res.json();
+    const docs = data.success ? (data.data || []) : [];
+    return { numFound: docs.length, docs };
+  }
+
+  const nameMatch = companyQuery.match(/^company:(.+?)(?:\*|$)/);
+  if (nameMatch) {
+    const name = nameMatch[1].trim();
+    const url = `${API_BASE_URL}/firme/company/?name=${encodeURIComponent(name)}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "job_seeker_ro_spider" }
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`API company query error: ${res.status} - ${text}`);
+    }
+
+    const data = await res.json();
+    const docs = data.success ? (data.data || []) : [];
+    return { numFound: docs.length, docs };
+  }
+
+  throw new Error(`Unsupported company query format: ${companyQuery}`);
+}
+
+export async function deleteJobsByCIF(cif) {
+  const url = `${API_BASE_URL}/scraper/jobs/delete/`;
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "job_seeker_ro_spider"
+    },
+    body: JSON.stringify({ cif: padCif(cif) })
+  });
+
+  if (res.status === 404) {
+    console.log(`⚠️ No jobs found for CIF ${cif} — nothing to delete.`);
+    return;
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API jobs delete error: ${res.status} - ${text}`);
+  }
+
+  const data = await res.json();
+  console.log(`✅ Deleted ${data.count ?? 0} jobs for CIF ${cif} via API.`);
+}
+
+export async function deleteJobByUrl(url) {
+  const apiUrl = `${API_BASE_URL}/scraper/jobs/delete/`;
+  const res = await fetch(apiUrl, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "job_seeker_ro_spider"
+    },
+    body: JSON.stringify({ url })
+  });
+
+  if (res.status === 404) {
+    return;
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API jobs delete error: ${res.status} - ${text}`);
+  }
+}
+
+export async function upsertJobs(jobs) {
+  const url = `${API_BASE_URL}/scraper/jobs/upload/`;
+
+  const paddedJobs = jobs.map(job => ({
+    ...job,
+    cif: padCif(job.cif)
+  }));
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "User-Agent": "job_seeker_ro_spider"
+    },
+    body: JSON.stringify(paddedJobs)
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API jobs upload error: ${res.status} - ${text}`);
+  }
+
+  const data = await res.json();
+  console.log(`✅ Upserted ${data.count ?? jobs.length} jobs via API.`);
+}
+
+async function checkUrl(url) {
+  try {
+    const res = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(TIMEOUT),
+      headers: { "User-Agent": "job_seeker_ro_spider" }
+    });
+    return { url, status: res.status, valid: res.ok };
+  } catch (err) {
+    return { url, status: 0, valid: false, error: err.message };
+  }
+}
+
+export async function runVerification(cif) {
+  console.log("=== Verify Jobs ===\n");
+
+  const result = await querySOLR(cif);
+  console.log(`Total jobs in API for CIF ${cif}: ${result.numFound}`);
+
+  console.log("\nFirst 5 jobs:");
+  result.docs.slice(0, 5).forEach((job, i) => {
+    console.log(`${i+1}. ${job.title} (${job.location?.join(', ')}) - ${job.workmode}`);
+  });
+
+  const invalidUrls = [];
+  for (let i = 0; i < result.docs.length; i++) {
+    const job = result.docs[i];
+    const res = await checkUrl(job.url);
+    console.log(`[${i+1}/${result.docs.length}] ${res.status > 0 ? res.status : 'ERR'} - ${job.url}`);
+    if (!res.valid) invalidUrls.push(job.url);
+  }
+
+  if (invalidUrls.length > 0) {
+    console.log(`\n⚠️ ${invalidUrls.length} invalid URLs found - deleting via API...`);
+    for (const url of invalidUrls) {
+      await deleteJobByUrl(url);
+    }
+    console.log(`✅ Deleted ${invalidUrls.length} invalid jobs via API`);
+  } else {
+    console.log("\n✅ All URLs valid");
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("api.js")) {
+  const args = process.argv.slice(2);
+
+  if (args[0]) {
+    await runVerification(args[0]);
+  } else {
+    console.error("Usage: node scraper/api.js <CIF>");
+  }
+}

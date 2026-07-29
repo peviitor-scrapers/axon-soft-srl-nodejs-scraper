@@ -3,11 +3,11 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import { validateAndGetCompany } from "./company.js";
-import { querySOLR, deleteJobByUrl, upsertJobs, upsertCompany } from "./solr.js";
-import { generateJobsMarkdown } from "./src/markdown-generator.js";
+import { querySOLR, deleteJobByUrl, upsertJobs, upsertCompany } from "./api.js";
+import { generateJobsMarkdown } from "./markdown-generator.js";
 import companyConfig from "./config/company.js";
 
-const COMPANY_CIF = companyConfig.cif;
+const COMPANY_CIF = companyConfig.id;
 const TIMEOUT = 10000;
 let COMPANY_NAME = null;
 
@@ -55,8 +55,8 @@ async function searchANOFM(cif) {
 }
 
 async function fetchCareerPage() {
-  console.log(`Fetching career page: ${companyConfig.careerUrl}`);
-  const res = await fetch(companyConfig.careerUrl, {
+  console.log(`Fetching career page: ${companyConfig.career[0]}`);
+  const res = await fetch(companyConfig.career[0], {
     headers: {
       "User-Agent": "job_seeker_ro_spider",
       "Accept": "text/html"
@@ -111,7 +111,7 @@ function parseCareerPage(html) {
 function parseJobDetail(html, baseJob) {
   const $ = cheerio.load(html);
   const title = $('h1').first().text().trim() || baseJob.title;
-  const location = [companyConfig.defaultLocation];
+  const location = [companyConfig.location[0]];
 
   return {
     url: baseJob.url,
@@ -139,7 +139,7 @@ async function scrapeAllListings(testOnlyOnePage = false) {
       allJobs.push({
         url: job.url,
         title: job.title,
-        location: [companyConfig.defaultLocation],
+        location: [companyConfig.location[0]],
         workmode: "hybrid"
       });
     }
@@ -224,7 +224,7 @@ async function main() {
     console.log("=== Step 1: Get existing jobs count ===");
     const existingResult = await querySOLR(COMPANY_CIF);
     const existingCount = existingResult.numFound;
-    console.log(`Found ${existingCount} existing jobs in SOLR`);
+    console.log(`Found ${existingCount} existing jobs`);
 
     console.log("=== Step 2: Validate company via ANAF ===");
     const { company, cif, address } = await validateAndGetCompany();
@@ -237,14 +237,14 @@ async function main() {
         company,
         brand: companyConfig.brand,
         status: "activ",
-        location: address ? [address] : [companyConfig.defaultLocation],
-        website: [companyConfig.website],
-        career: [companyConfig.careerUrl],
+        location: address ? [address] : companyConfig.location,
+        website: companyConfig.website,
+        career: companyConfig.career,
         lastScraped: new Date().toISOString().split('T')[0],
         scraperFile: companyConfig.scraperFile
       });
     } catch (err) {
-      console.log(`Note: Could not upsert company to SOLR core: ${err.message}`);
+      console.log(`Note: Could not upsert company: ${err.message}`);
     }
 
     const rawJobs = await scrapeAllListings(testOnlyOnePage);
@@ -272,7 +272,7 @@ async function main() {
       jobs
     };
 
-    console.log("Transforming jobs for SOLR...");
+    console.log("Transforming jobs...");
     const transformedPayload = transformJobsForSOLR(payload);
     const validCount = transformedPayload.jobs.filter(j => j.location).length;
     console.log(`📊 Jobs with valid Romanian locations: ${validCount}`);
@@ -285,9 +285,9 @@ async function main() {
       company: transformedPayload.company,
       brand: companyConfig.brand,
       status: "activ",
-      location: address ? [address] : [companyConfig.defaultLocation],
-      website: [companyConfig.website],
-      career: [companyConfig.careerUrl],
+      location: address ? [address] : companyConfig.location,
+      website: companyConfig.website,
+      career: companyConfig.career,
       lastScraped: new Date().toISOString().split('T')[0]
     };
     const markdown = generateJobsMarkdown(companyData, transformedPayload.jobs);
@@ -298,14 +298,14 @@ async function main() {
     fs.writeFileSync("docs/company.json", JSON.stringify(companyConfig, null, 2), "utf-8");
     console.log("Saved docs/company.json");
 
-    console.log("\n=== Step 6: Upsert jobs to SOLR ===");
+    console.log("\n=== Step 6: Upsert jobs ===");
     await upsertJobs(transformedPayload.jobs);
 
     const finalResult = await querySOLR(COMPANY_CIF);
     console.log(`\n📊 === SUMMARY ===`);
-    console.log(`📊 Jobs existing in SOLR before scrape: ${existingCount}`);
+    console.log(`📊 Jobs before scrape: ${existingCount}`);
     console.log(`📊 Jobs scraped from Axon Soft website: ${scrapedCount}`);
-    console.log(`📊 Jobs in SOLR after scrape: ${finalResult.numFound}`);
+    console.log(`📊 Jobs after scrape: ${finalResult.numFound}`);
     console.log(`====================`);
 
     console.log("\n=== DONE ===");

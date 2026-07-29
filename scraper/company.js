@@ -1,5 +1,5 @@
 /**
- * Company Module - Company Validation and Data Management
+ * Company Module
  * 
  * PURPOSE: Handles company data validation from ANAF, caches company information,
  * and validates companies against the Peviitor API. This module ensures the scraper
@@ -8,8 +8,8 @@
 
 import fetch from "node-fetch";
 import fs from "fs";
-import { querySOLR, deleteJobsByCIF } from "./solr.js";
-import { getCompanyFromANAF } from "./src/anaf.js";
+import { querySOLR, deleteJobsByCIF } from "./api.js";
+import { getCompanyFromANAF } from "./company-data.js";
 import companyConfig from "./config/company.js";
 
 // ============================================================================
@@ -19,7 +19,7 @@ import companyConfig from "./config/company.js";
 // Peviitor API base URL for company validation
 const Peviitor_API_URL = "https://api.peviitor.ro/v1/company/";
 
-const COMPANY_CIF = companyConfig.cif;
+const COMPANY_CIF = companyConfig.id;
 const COMPANY_BRAND = companyConfig.brand;
 
 // Cache TTL — re-fetch from ANAF if cached data is older than this
@@ -303,10 +303,10 @@ export async function getCompanyData() {
 /**
  * Complete company validation workflow:
  * 1. Validate company exists in ANAF (active)
- * 2. Check existing jobs in SOLR
+ * 2. Check existing jobs in the API
  * 3. Cross-validate with Peviitor API
  * 4. Cache data for offline use
- * 5. Delete SOLR jobs if company is inactive
+ * 5. Delete jobs if company is inactive
  * 
  * @returns {Promise<Object>} - Validation result with status and job count
  */
@@ -316,10 +316,9 @@ export async function validateAndGetCompany() {
   // Get company data from ANAF (or cache)
   const { company, cif, active, anafData } = await getCompanyData();
   
-  // Check how many jobs already exist in SOLR for this company
-  console.log("\n=== Step 2: Check existing jobs in SOLR ===\n");
+  console.log("\n=== Step 2: Check existing jobs ===\n");
   const solrResult = await querySOLR(cif);
-  console.log(`Jobs found in SOLR for CIF ${cif}: ${solrResult.numFound}`);
+  console.log(`Jobs found for CIF ${cif}: ${solrResult.numFound}`);
   
   // Cross-validate with Peviitor
   console.log("\n=== Step 3: Validate via Peviitor ===\n");
@@ -334,9 +333,8 @@ export async function validateAndGetCompany() {
   // Save company data to cache
   saveCompanyData(anafData, peviitorData);
   
-  // If company is inactive, remove their jobs from SOLR
   if (!active) {
-    console.log("\n⚠️ Company is INACTIVE in ANAF - deleting jobs from SOLR and stopping");
+    console.log("\n⚠️ Company is INACTIVE in ANAF - deleting jobs");
     if (solrResult.numFound > 0) {
       await deleteJobsByCIF(cif);
     }

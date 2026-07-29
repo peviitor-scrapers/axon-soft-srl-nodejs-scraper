@@ -54,11 +54,11 @@ const CACHED_DATA = {
   authorizedCaenCodes: ['6210', '6220', '6290', '7020', '8559']
 };
 
-describe('src/anaf.js', () => {
+describe('scraper/company-data.js', () => {
   let anaf;
 
   beforeAll(async () => {
-    anaf = await import('../../src/anaf.js');
+    anaf = await import('../../scraper/company-data.js');
   });
 
   beforeEach(() => {

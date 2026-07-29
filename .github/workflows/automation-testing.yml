@@ -44,8 +44,6 @@ jobs:
             echo "Running in LIVE mode (will delete expired jobs)..."
             node --no-deprecation tests/validate-axon-soft-jobs.js --delete
           fi
-        env:
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
 
   ensure-company-core:
     runs-on: ubuntu-latest
@@ -57,13 +55,13 @@ jobs:
         env:
           SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
         run: |
-          CIF=$(jq -r '.cif' config/company.json)
-          LEGAL_NAME=$(jq -r '.legalName' config/company.json)
-          BRAND=$(jq -r '.brand' config/company.json)
-          WEBSITE=$(jq -r '.website' config/company.json)
-          CAREER=$(jq -r '.careerUrl' config/company.json)
-          DEFAULT_LOC=$(jq -r '.defaultLocation' config/company.json)
-          SCRAPER_FILE=$(jq -r '.scraperFile' config/company.json)
+          CIF=$(jq -r '.id' scraper/config/company.json)
+          COMPANY_NAME=$(jq -r '.company' scraper/config/company.json)
+          BRAND=$(jq -r '.brand' scraper/config/company.json)
+          WEBSITE=$(jq -r '.website[0]' scraper/config/company.json)
+          CAREER=$(jq -r '.career[0]' scraper/config/company.json)
+          DEFAULT_LOC=$(jq -r '.location[0]' scraper/config/company.json)
+          SCRAPER_FILE=$(jq -r '.scraperFile' scraper/config/company.json)
           TODAY=$(date -u +%Y-%m-%d)
 
           EXISTING=$(curl -s --user "${SOLR_AUTH}" \
@@ -75,7 +73,7 @@ jobs:
             echo "${BRAND} not found - adding to company core..."
             jq -n \
               --arg id "$CIF" \
-              --arg company "$LEGAL_NAME" \
+              --arg company "$COMPANY_NAME" \
               --arg brand "$BRAND" \
               --arg website "$WEBSITE" \
               --arg career "$CAREER" \
@@ -132,8 +130,21 @@ jobs:
           npm run test:unit
           sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Unit Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Unit Tests — AXON SOFT SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/pre-scrape-unit.html || true
+
+      - name: Run Integration Tests
+        run: |
+          npm run test:integration
+          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Integration Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Integration Tests — AXON SOFT SRL</h1>|' test-report.html
+          cp test-report.html docs/test-results/pre-scrape-integration.html || true
+
+      - name: Run Consistency Tests
+        run: |
+          npm run test:consistency
+          sed -i 's|<title>Test Report</title>|<title>Post-scrape: Consistency Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: Consistency Tests — AXON SOFT SRL</h1>|' test-report.html
+          cp test-report.html docs/test-results/post-scrape-consistency.html || true
         env:
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Upload Unit Test Results
         uses: actions/upload-artifact@v7

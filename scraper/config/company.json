@@ -1,0 +1,10 @@
+{
+  "id": "13049596",
+  "company": "AXON SOFT SRL",
+  "brand": "AXON SOFT",
+  "status": "activ",
+  "location": ["Cluj-Napoca"],
+  "website": ["https://axon-soft.com"],
+  "career": ["https://axon-soft.com/careers/"],
+  "scraperFile": "https://raw.githubusercontent.com/sebiboga/axon-soft-srl-nodejs-scraper/main/.github/workflows/job-seeker-ro-spider.yml"
+}

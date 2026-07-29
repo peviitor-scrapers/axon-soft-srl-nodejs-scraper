@@ -31,8 +31,24 @@ jobs:
           npm run test:unit
           sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Unit Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Unit Tests — AXON SOFT SRL</h1>|' test-report.html
           cp test-report.html docs/test-results/pre-scrape-unit.html || true
+
+      - name: Pre-scrape — Integration Tests
+        run: |
+          npm run test:integration
+          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Integration Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Integration Tests — AXON SOFT SRL</h1>|' test-report.html
+          cp test-report.html docs/test-results/pre-scrape-integration.html || true
+
+      - name: Run scraper
+        run: npm run scrape
+
+      - name: Consistency Tests
+        run: |
+          npm run test:consistency
+          sed -i 's|<title>Test Report</title>|<title>Post-scrape: Consistency Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: Consistency Tests — AXON SOFT SRL</h1>|' test-report.html
+          cp test-report.html docs/test-results/post-scrape-consistency.html || true
         env:
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pre-scrape — Integration Tests
         run: |

@@ -1,29 +1,8 @@
 import { jest } from '@jest/globals';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import companyConfig from '../../config/company.js';
+import companyConfig from '../../scraper/config/company.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '../../.env.local') });
-
-const HAS_SOLR = !!process.env.SOLR_AUTH;
-
-function itIfSolr(name, fn, timeout) {
-  if (HAS_SOLR) {
-    return it(name, fn, timeout);
-  }
-  return it.skip(`${name} (skipped: SOLR_AUTH not set)`, fn, timeout);
-}
-
-beforeAll(() => {
-  if (HAS_SOLR) {
-    process.env.SOLR_AUTH = process.env.SOLR_AUTH;
-  }
-});
-
-const COMPANY_CIF = companyConfig.cif;
-const COMPANY_NAME = companyConfig.legalName;
+const COMPANY_CIF = companyConfig.id;
+const COMPANY_NAME = companyConfig.company;
 const COMPANY_BRAND = companyConfig.brand;
 
 describe('Integration: API Workflow', () => {
@@ -32,7 +11,7 @@ describe('Integration: API Workflow', () => {
     let anaf;
 
     beforeAll(async () => {
-      anaf = await import('../../src/anaf.js');
+      anaf = await import('../../scraper/company-data.js');
     });
 
     it('should search for Axon Soft brand and find the company', async () => {
@@ -85,7 +64,7 @@ describe('Integration: API Workflow', () => {
     let company;
 
     beforeAll(async () => {
-      company = await import('../../company.js');
+      company = await import('../../scraper/company.js');
     });
 
     it('should respond successfully and contain companies array (Peviitor API may block non-browser requests)', async () => {
@@ -93,15 +72,15 @@ describe('Integration: API Workflow', () => {
     }, 15000);
   });
 
-  describe('SOLR Company Core', () => {
-    let solr;
+  describe('Company Core', () => {
+    let api;
 
     beforeAll(async () => {
-      solr = await import('../../solr.js');
+      api = await import('../../scraper/api.js');
     });
 
-    itIfSolr('should query company core by ID', async () => {
-      const result = await solr.queryCompanySOLR(`id:${COMPANY_CIF}`);
+    it('should query company core by ID', async () => {
+      const result = await api.queryCompanySOLR(`id:${COMPANY_CIF}`);
 
       expect(result.numFound).toBe(1);
       const comp = result.docs[0];
@@ -113,8 +92,8 @@ describe('Integration: API Workflow', () => {
       expect(comp.lastScraped).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }, 15000);
 
-    itIfSolr('should have required company model fields', async () => {
-      const result = await solr.queryCompanySOLR(`id:${COMPANY_CIF}`);
+    it('should have required company model fields', async () => {
+      const result = await api.queryCompanySOLR(`id:${COMPANY_CIF}`);
       const comp = result.docs[0];
 
       expect(comp).toHaveProperty('id', COMPANY_CIF);
@@ -134,8 +113,8 @@ describe('Integration: API Workflow', () => {
       expect(comp).toHaveProperty('scraperFile');
     }, 15000);
 
-    itIfSolr('should have optional field (group) if present', async () => {
-      const result = await solr.queryCompanySOLR(`id:${COMPANY_CIF}`);
+    it('should have optional field (group) if present', async () => {
+      const result = await api.queryCompanySOLR(`id:${COMPANY_CIF}`);
       const comp = result.docs[0];
 
       if (comp.group !== undefined) {
@@ -144,18 +123,18 @@ describe('Integration: API Workflow', () => {
     }, 15000);
   });
 
-  describe('SOLR Jobs Core', () => {
-    let solr;
+  describe('Jobs Core', () => {
+    let api;
 
     beforeAll(async () => {
-      solr = await import('../../solr.js');
+      api = await import('../../scraper/api.js');
     });
 
-    itIfSolr('should query jobs by CIF and return valid data', async () => {
-      const result = await solr.querySOLR(COMPANY_CIF);
+    it('should query jobs by CIF and return valid data', async () => {
+      const result = await api.querySOLR(COMPANY_CIF);
 
       if (result.numFound === 0) {
-        console.log(`⚠️ No ${COMPANY_BRAND} jobs in Solr — skipping job field assertions (scraper may not have run yet)`);
+        console.log(`⚠️ No ${COMPANY_BRAND} jobs — skipping job field assertions (scraper may not have run yet)`);
         return;
       }
 
@@ -171,25 +150,25 @@ describe('Integration: API Workflow', () => {
       expect(job).toHaveProperty('location');
     }, 15000);
 
-    itIfSolr('should not have duplicate URLs for same CIF', async () => {
-      const result = await solr.querySOLR(COMPANY_CIF);
+    it('should not have duplicate URLs for same CIF', async () => {
+      const result = await api.querySOLR(COMPANY_CIF);
 
       const urls = result.docs.map(j => j.url);
       const uniqueUrls = new Set(urls);
       expect(uniqueUrls.size).toBe(result.docs.length);
     }, 15000);
 
-    itIfSolr('should have valid status values for all jobs', async () => {
+    it('should have valid status values for all jobs', async () => {
       const validStatuses = ['scraped', 'tested', 'verified', 'published'];
-      const result = await solr.querySOLR(COMPANY_CIF);
+      const result = await api.querySOLR(COMPANY_CIF);
 
       for (const job of result.docs) {
         expect(validStatuses).toContain(job.status);
       }
     }, 15000);
 
-    itIfSolr('should have valid CIF format for all jobs', async () => {
-      const result = await solr.querySOLR(COMPANY_CIF);
+    it('should have valid CIF format for all jobs', async () => {
+      const result = await api.querySOLR(COMPANY_CIF);
 
       for (const job of result.docs) {
         expect(job.cif).toMatch(/^\d{6,9}$/);
@@ -202,8 +181,8 @@ describe('Integration: API Workflow', () => {
     let companyModule;
 
     beforeAll(async () => {
-      anaf = await import('../../src/anaf.js');
-      companyModule = await import('../../company.js');
+      anaf = await import('../../scraper/company-data.js');
+      companyModule = await import('../../scraper/company.js');
     });
 
     it('should complete the ANAF → Peviitor validation path', async () => {
@@ -220,17 +199,31 @@ describe('Integration: API Workflow', () => {
       expect(anafData.inactive).toBe(false);
     }, 30000);
 
-    itIfSolr('should have matching CIF in company core', async () => {
+    it('should have matching CIF in company core', async () => {
       const companyResult = await companyModule.validateAndGetCompany();
-      const solrObj = await import('../../solr.js');
+      const apiObj = await import('../../scraper/api.js');
 
-      const solrResult = await solrObj.queryCompanySOLR(`id:${COMPANY_CIF}`);
-      expect(solrResult.numFound).toBe(1);
-      expect(solrResult.docs[0].id).toBe(COMPANY_CIF);
-      expect(solrResult.docs[0].company).toBe(COMPANY_NAME);
+      const apiResult = await apiObj.queryCompanySOLR(`id:${COMPANY_CIF}`);
+      expect(apiResult.numFound).toBe(1);
+      expect(apiResult.docs[0].id).toBe(COMPANY_CIF);
+      expect(apiResult.docs[0].company).toBe(COMPANY_NAME);
     }, 30000);
 
-    itIfSolr('should validate company and query SOLR for existing jobs', async () => {
+    it('should validate company and query for existing jobs', async () => {
+      const companyResult = await companyModule.validateAndGetCompany();
+
+      expect(companyResult.status).toBe('active');
+      expect(companyResult.company).toBe(COMPANY_NAME);
+      expect(companyResult.cif).toBe(COMPANY_CIF);
+
+      if (companyResult.existingJobsCount === 0) {
+        console.log(`⚠️ No ${COMPANY_BRAND} jobs — skipping job count assertion (scraper may not have run yet)`);
+        return;
+      }
+      expect(companyResult.existingJobsCount).toBeGreaterThan(0);
+    }, 30000);
+
+    it('should validate company and query SOLR for existing jobs', async () => {
       const companyResult = await companyModule.validateAndGetCompany();
 
       expect(companyResult.status).toBe('active');

@@ -1,7 +1,7 @@
 /**
  * AXON SOFT-Specific Job URL Validator (fast, used by CI)
  *
- * Quick nightly cleanup pass over jobs in SOLR. Uses HEAD requests only.
+ * Quick nightly cleanup pass over jobs in the API. Uses HEAD requests only.
  * Called by .github/workflows/automation-testing.yml on the scheduled run.
  *
  * For deep content-aware validation across any CIF, see validate-jobs.js
@@ -9,28 +9,23 @@
  *
  * Flags:
  *   --dry-run    Show invalid jobs but do not delete
- *   --delete     Delete invalid jobs from SOLR after listing
+ *   --delete     Delete invalid jobs after listing
  */
-import companyConfig from "../config/company.js";
-import { querySOLR, deleteJobByUrl } from "../solr.js";
-import { validateByHead } from "../src/job-validator.js";
+import companyConfig from "../scraper/config/company.js";
+import { querySOLR, deleteJobByUrl } from "../scraper/api.js";
+import { validateByHead } from "../scraper/job-validator.js";
 
-const CIF = companyConfig.cif;
-const COMPANY = companyConfig.legalName;
+const CIF = companyConfig.id;
+const COMPANY = companyConfig.company;
 
 async function main() {
   const dryRun = process.argv.includes("--dry-run");
   const doDelete = process.argv.includes("--delete");
 
-  if (!process.env.SOLR_AUTH) {
-    console.log("SOLR_AUTH not set — skipping validation");
-    process.exit(0);
-  }
-
   console.log(`=== Validating ${COMPANY} (CIF: ${CIF}) ===\n`);
 
   const result = await querySOLR(CIF);
-  console.log(`Total jobs in SOLR: ${result.numFound}`);
+  console.log(`Total jobs: ${result.numFound}`);
 
   if (result.numFound === 0) {
     console.log("No jobs to validate.");
