@@ -224,7 +224,11 @@ async function main() {
     console.log("=== Step 1: Get existing jobs count ===");
     const existingResult = await querySOLR(COMPANY_CIF);
     const existingCount = existingResult.numFound;
+    const existingUrls = new Set(existingResult.docs.map(j => j.url));
     console.log(`Found ${existingCount} existing jobs`);
+
+    fs.writeFileSync("tmp/jobs_existing.json", JSON.stringify(existingResult.docs, null, 2), "utf-8");
+    console.log(`Saved ${existingResult.docs.length} existing jobs to tmp/jobs_existing.json`);
 
     console.log("=== Step 2: Validate company via ANAF ===");
     const { company, cif, address } = await validateAndGetCompany();
@@ -279,6 +283,21 @@ async function main() {
 
     fs.writeFileSync("tmp/jobs.json", JSON.stringify(transformedPayload, null, 2), "utf-8");
     console.log("Saved tmp/jobs.json");
+
+    console.log("\n=== Step 5: Clean up stale jobs ===");
+    const scrapedUrls = new Set(transformedPayload.jobs.map(j => j.url));
+    const staleUrls = [...existingUrls].filter(url => !scrapedUrls.has(url));
+
+    if (staleUrls.length > 0) {
+      console.log(`Found ${staleUrls.length} stale jobs to delete:`);
+      for (const url of staleUrls) {
+        console.log(`  Deleting: ${url}`);
+        await deleteJobByUrl(url);
+      }
+      console.log(`✅ Deleted ${staleUrls.length} stale jobs`);
+    } else {
+      console.log("No stale jobs to delete");
+    }
 
     const companyData = {
       id: localCif,

@@ -40,28 +40,6 @@ jobs:
 
       - name: Run scraper
         run: npm run scrape
-
-      - name: Consistency Tests
-        run: |
-          npm run test:consistency
-          sed -i 's|<title>Test Report</title>|<title>Post-scrape: Consistency Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: Consistency Tests — AXON SOFT SRL</h1>|' test-report.html
-          cp test-report.html docs/test-results/post-scrape-consistency.html || true
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pre-scrape — Integration Tests
-        run: |
-          npm run test:integration
-          sed -i 's|<title>Test Report</title>|<title>Pre-scrape: Integration Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Pre-scrape: Integration Tests — AXON SOFT SRL</h1>|' test-report.html
-          cp test-report.html docs/test-results/pre-scrape-integration.html || true
-        env:
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
-
-      - name: Run scraper
-        run: npm run scrape
-        env:
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
           
       - name: Check for new jobs
         run: |
@@ -88,7 +66,6 @@ jobs:
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
 
       - name: Upload test artifacts
         if: always()

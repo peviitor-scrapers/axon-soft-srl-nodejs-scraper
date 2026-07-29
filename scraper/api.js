@@ -51,44 +51,40 @@ export async function upsertCompany(companyDoc) {
   console.log(`✅ Company "${companyDoc.company}" upserted via API.`);
 }
 
-export async function queryCompanySOLR(companyQuery) {
-  const cifMatch = companyQuery.match(/^id:(\d+)$/);
-  if (cifMatch) {
-    const cif = cifMatch[1];
-    const url = `${API_BASE_URL}/firme/company/?cif=${encodeURIComponent(padCif(cif))}`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "job_seeker_ro_spider" }
-    });
+export async function getCompanyByCif(cif) {
+  const url = `${API_BASE_URL}/firme/company/?cif=${encodeURIComponent(padCif(cif))}`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "job_seeker_ro_spider" }
+  });
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`API company query error: ${res.status} - ${text}`);
-    }
-
-    const data = await res.json();
-    const docs = data.success ? (data.data || []) : [];
-    return { numFound: docs.length, docs };
+  if (!res.ok) {
+    throw new Error(`API company search error: ${res.status}`);
   }
 
-  const nameMatch = companyQuery.match(/^company:(.+?)(?:\*|$)/);
-  if (nameMatch) {
-    const name = nameMatch[1].trim();
-    const url = `${API_BASE_URL}/firme/company/?name=${encodeURIComponent(name)}`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "job_seeker_ro_spider" }
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`API company query error: ${res.status} - ${text}`);
-    }
-
-    const data = await res.json();
-    const docs = data.success ? (data.data || []) : [];
-    return { numFound: docs.length, docs };
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(`API company search failed: ${JSON.stringify(data)}`);
   }
 
-  throw new Error(`Unsupported company query format: ${companyQuery}`);
+  return data.data?.[0] || null;
+}
+
+export async function searchCompanyByName(name) {
+  const url = `${API_BASE_URL}/firme/company/?name=${encodeURIComponent(name)}`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "job_seeker_ro_spider" }
+  });
+
+  if (!res.ok) {
+    throw new Error(`API company search error: ${res.status}`);
+  }
+
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error(`API company search failed: ${JSON.stringify(data)}`);
+  }
+
+  return data.data || [];
 }
 
 export async function deleteJobsByCIF(cif) {
