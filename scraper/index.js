@@ -291,6 +291,7 @@ async function main() {
     if (staleUrls.length > 0) {
       console.log(`Found ${staleUrls.length} stale jobs to delete:`);
       let deleted = 0;
+      let failed = 0;
       for (const url of staleUrls) {
         console.log(`  Deleting: ${url}`);
         try {
@@ -298,9 +299,17 @@ async function main() {
           deleted++;
         } catch (err) {
           console.log(`  ⚠️ Failed to delete: ${err.message}`);
+          failed++;
         }
       }
-      console.log(`✅ Deleted ${deleted}/${staleUrls.length} stale jobs`);
+      if (failed > 0) {
+        console.log(`\n⚠️ ${failed} deletions failed — falling back to CIF-wide delete + re-upsert`);
+        await deleteJobsByCIF(localCif);
+        await upsertJobs(transformedPayload.jobs);
+        console.log(`✅ Re-upserted ${transformedPayload.jobs.length} jobs after CIF-wide delete`);
+      } else {
+        console.log(`✅ Deleted ${deleted}/${staleUrls.length} stale jobs`);
+      }
     } else {
       console.log("No stale jobs to delete");
     }
