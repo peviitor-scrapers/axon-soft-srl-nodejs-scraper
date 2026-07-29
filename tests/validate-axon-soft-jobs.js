@@ -1,5 +1,5 @@
 /**
- * AXON SOFT-Specific Job URL Validator (fast, used by CI)
+ * AXON SOFT-specific Job URL Validator (fast, used by CI)
  *
  * Quick nightly cleanup pass over jobs in the API. Uses HEAD requests only.
  * Called by .github/workflows/automation-testing.yml on the scheduled run.

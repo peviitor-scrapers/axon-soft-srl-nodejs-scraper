@@ -50,13 +50,7 @@ jobs:
             echo "No new jobs or scrape failed"
           fi
 
-      # - name: Post-scrape — E2E Tests
-      #   run: |
-      #     npm run test:e2e
-      #     sed -i 's|<title>Test Report</title>|<title>Post-scrape: E2E Tests — AXON SOFT SRL</title>|;s|<h1 id="title">Test Report</h1>|<h1 id="title">Post-scrape: E2E Tests — AXON SOFT SRL</h1>|' test-report.html
-      #     cp test-report.html docs/test-results/post-scrape.html || true
-      #   env:
-      #     SOLR_AUTH: ${{ secrets.SOLR_AUTH }}
+      # E2E tests skipped: axon-soft.com/careers/ behind Cloudflare, blocks node-fetch from GHA
 
       - name: Consistency Tests
         run: |

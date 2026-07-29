@@ -1,5 +1,5 @@
+import { fileURLToPath } from "url";
 import fetch from "node-fetch";
-import fs from "fs";
 
 const API_BASE_URL = "https://api.peviitor.ro/v1";
 const TIMEOUT = 10000;
@@ -202,7 +202,7 @@ export async function runVerification(cif) {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("api.js")) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
 
   if (args[0]) {

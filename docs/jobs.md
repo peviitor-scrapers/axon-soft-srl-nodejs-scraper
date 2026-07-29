@@ -7,17 +7,73 @@
 | CIF | 13049596 |
 | Brand | AXON SOFT |
 | Status | activ |
-| Location | Str.  NASAUD, 14, Municipiul Cluj-Napoca, Cluj |
+| Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-06-29 |
+| Last Scraped | 2026-07-29 |
 
-## Current Job Listings (1)
+## Current Job Listings (9)
 
-_Generated: 2026-06-29T11:12:28.523Z_
+_Generated: 2026-07-29T05:51:55.349Z_
+
+### QA Automation Engineer
+
+- **URL:** [https://axon-soft.com/qa-automation/](https://axon-soft.com/qa-automation/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Java Backend Developer
+
+- **URL:** [https://axon-soft.com/backend-java/](https://axon-soft.com/backend-java/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Business Analyst
+
+- **URL:** [https://axon-soft.com/business-analyst/](https://axon-soft.com/business-analyst/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Android Developer
+
+- **URL:** [https://axon-soft.com/android-developer/](https://axon-soft.com/android-developer/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Angular Developer
+
+- **URL:** [https://axon-soft.com/angular-developer-job/](https://axon-soft.com/angular-developer-job/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### QA Engineer
+
+- **URL:** [https://axon-soft.com/qa-engineer-job/](https://axon-soft.com/qa-engineer-job/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Java full-stack developer
+
+- **URL:** [https://axon-soft.com/java-developer-job/](https://axon-soft.com/java-developer-job/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Java Developer
+
+- **URL:** [https://axon-soft.com/java-developers/](https://axon-soft.com/java-developers/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
 
 ### PROGRAMATOR
 
-- **URL:** [https://mediere.anofm.ro/app/module/mediere/job/3305491](https://mediere.anofm.ro/app/module/mediere/job/3305491)
+- **URL:** [https://mediere.anofm.ro/app/module/mediere/job/3320628](https://mediere.anofm.ro/app/module/mediere/job/3320628)
 - **Location:** CLUJ-NAPOCA
 - **Status:** scraped

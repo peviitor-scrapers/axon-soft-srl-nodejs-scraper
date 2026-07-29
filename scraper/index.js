@@ -290,11 +290,17 @@ async function main() {
 
     if (staleUrls.length > 0) {
       console.log(`Found ${staleUrls.length} stale jobs to delete:`);
+      let deleted = 0;
       for (const url of staleUrls) {
         console.log(`  Deleting: ${url}`);
-        await deleteJobByUrl(url);
+        try {
+          await deleteJobByUrl(url);
+          deleted++;
+        } catch (err) {
+          console.log(`  ⚠️ Failed to delete: ${err.message}`);
+        }
       }
-      console.log(`✅ Deleted ${staleUrls.length} stale jobs`);
+      console.log(`✅ Deleted ${deleted}/${staleUrls.length} stale jobs`);
     } else {
       console.log("No stale jobs to delete");
     }

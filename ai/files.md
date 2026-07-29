@@ -6,17 +6,17 @@
 |------|-------------|
 | `index.js` | Main scraper - full workflow: validate company → scrape → transform → upsert → generate docs/jobs.md |
 | `company.js` | Validates company via ANAF + Peviitor APIs, checks if company is active/inactive |
-| `solr.js` | SOLR operations module - exports querySOLR, deleteJobByUrl, upsertJobs + standalone verify/extract/company commands |
-| `demoanaf.js` | CLI entry point for ANAF module (thin wrapper around src/anaf.js) |
+| `api.js` | Peviitor API operations module - exports querySOLR, getCompanyByCif, searchCompanyByName, deleteJobByUrl, upsertJobs + standalone verify command |
+| `demoanaf.js` | CLI entry point for ANAF module (thin wrapper around company-data.js) |
 | `validate-jobs.js` | **Generic deep validator (manual use).** Full GET requests, parses page body for "no longer available" keywords. Works with any CIF, single URL, or file. Slower but catches soft-404s. Not used by CI. |
 
-## JavaScript Files — src/
+## JavaScript Files — scraper/
 
 | File | Description |
 |------|-------------|
-| `src/anaf.js` | ANAF API core module - exports getCompanyFromANAF(cif), getCompanyFromANAFWithFallback(cif, cached), searchCompany(brandName) |
-| `src/markdown-generator.js` | Generates docs/jobs.md - exports generateJobsMarkdown(companyData, jobs) |
-| `src/job-validator.js` | Shared validation primitives - exports validateByHead(url), validateByContent(url, opts), DEFAULT_EXPIRED_KEYWORDS. Used by both `validate-jobs.js` and `tests/validate-epam-jobs.js`. |
+| `company-data.js` | ANAF API core module - exports getCompanyFromANAF(cif), searchCompany(brandName), with cuiscan.ro fallback |
+| `markdown-generator.js` | Generates docs/jobs.md - exports generateJobsMarkdown(companyData, jobs) |
+| `job-validator.js` | Shared validation primitives - exports validateByHead(url), validateByContent(url, opts), DEFAULT_EXPIRED_KEYWORDS. Used by both `validate-jobs.js` and `tests/validate-axon-soft-jobs.js`. |
 
 ## Config — config/
 
@@ -31,15 +31,15 @@
 |------|-------------|
 | `tests/package.json` | Jest config for test suite - experimental VM modules, test scripts (unit/integration/e2e/consistency) |
 | `tests/company.json` | Mock ANAF company data for AXON SOFT used in unit tests |
-| `tests/validate-epam-jobs.js` | **AXON SOFT-specific fast validator (used by CI).** HEAD requests only, hardcoded AXON SOFT CIF. Called nightly by `automation-testing.yml`. Supports `--dry-run` and `--delete`. |
+| `tests/validate-axon-soft-jobs.js` | **AXON SOFT-specific fast validator (used by CI).** HEAD requests only, hardcoded AXON SOFT CIF. Called nightly by `automation-testing.yml`. Supports `--dry-run` and `--delete`. |
 | `tests/unit/index.test.js` | Unit tests for index.js - parseApiJobs, mapToJobModel, transformJobsForSOLR |
 | `tests/unit/company.test.js` | Unit tests for company.js - getCompanyBrand, validateAndGetCompany, fallback caching |
-| `tests/unit/solr.test.js` | Unit tests for solr.js - query, upsert, delete, HTTP error handling |
-| `tests/unit/demoanaf.test.js` | Unit tests for ANAF search and company retrieval with mocked responses |
-| `tests/integration/workflow.test.js` | Integration tests - ANAF live API, Peviitor API, SOLR company/job cores |
-| `tests/e2e/scraper.test.js` | E2E tests - full pipeline with real AXON SOFT API, ANAF, and SOLR |
+| `tests/unit/api.test.js` | Unit tests for api.js - querySOLR, upsertJobs, deleteJobByUrl, getCompanyByCif, searchCompanyByName, HTTP error handling |
+| `tests/unit/company-data.test.js` | Unit tests for ANAF/CUIScan company data retrieval with mocked responses |
+| `tests/integration/workflow.test.js` | Integration tests - ANAF live API, Peviitor API |
+| `tests/e2e/scraper.test.js` | E2E tests - full pipeline with real AXON SOFT API and ANAF |
 | `tests/consistency/public.test.js` | Verifies repository is public on GitHub |
-| `tests/consistency/repo.test.js` | Verifies default branch, GitHub Pages, SOLR_AUTH secret, workflow files |
+| `tests/consistency/repo.test.js` | Verifies default branch, GitHub Pages, workflow files |
 | `tests/consistency/topics.test.js` | Verifies repository has required topics: job-seeker-ro-spider, peviitor-ro |
 | `tests/consistency/workflow-naming.test.js` | Validates workflow file naming conventions |
 
@@ -72,7 +72,7 @@
 | `package-lock.json` | Locked dependency versions |
 | `.npmrc` | npm configuration |
 | `.gitignore` | Ignores node_modules/, tmp/, .env.local |
-| `.env.local` | Local environment variables (SOLR_AUTH) - NOT committed |
+| `.env.local` | Local environment variables - NOT committed |
 | `.github/CODEOWNERS` | Code ownership rules for PR reviews |
 | `.github/workflows/job-seeker-ro-spider.yml` | Daily scraping workflow (6 AM UTC) |
 | `.github/workflows/automation-testing.yml` | Automated tests on every push/PR |
@@ -81,13 +81,12 @@
 
 | File | Description |
 |------|-------------|
-| `company.json` | **ANAF cache (committed).** Survives between CI runs so the scraper does not hit demoANAF on every scrape. Refreshed when older than 7 days (configurable via `CACHE_MAX_AGE_DAYS` in company.js). |
 | `docs/company.json` | Static copy of `config/company.json` regenerated on each scrape. Served by GitHub Pages so the live page can read company identity without hardcoding it in HTML. |
-| `delete_request.json` | **Manual maintenance tool** — SOLR payload to delete ALL jobs for CIF 13049596. Use only when you need to wipe AXON SOFT jobs from SOLR entirely. Run with: `curl --user "${SOLR_AUTH}" "https://solr.peviitor.ro/solr/job/update?commit=true" -H "Content-Type: application/json" -d @delete_request.json` |
+| `delete_request.json` | **Manual maintenance tool** — API payload to delete ALL jobs for CIF 13049596. |
 | `docs/jobs.md` | Scraped jobs in markdown format - company info + all current jobs (generated by CI after each scrape) |
 
 ## Notes
 
 - All `.md` schema files (job-model.md, company-model.md) are dynamic — check peviitor_core README.md for updates
 - `tmp/` directory holds runtime artifacts (jobs.json, jobs_existing.json) — not committed
-- Full workflow: validate company (ANAF+Peviitor) → scrape AXON SOFT → transform → upsert SOLR → generate docs/jobs.md
+- Full workflow: validate company (ANAF+Peviitor) → scrape AXON SOFT → transform → upsert via API → generate docs/jobs.md

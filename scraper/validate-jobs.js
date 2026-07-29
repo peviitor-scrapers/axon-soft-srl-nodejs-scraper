@@ -10,16 +10,17 @@
  * Used for ad-hoc cleanup and debugging. NOT called from CI.
  *
  * For the fast CI-friendly AXON SOFT-only HEAD check, see
- * tests/validate-epam-jobs.js.
+ * tests/validate-axon-soft-jobs.js.
  *
  * Usage:
- *   node validate-jobs.js <CIF>                   - Query Solr and validate all jobs for a CIF
- *   node validate-jobs.js --url <url>             - Check a single URL
- *   node validate-jobs.js --urls <url1> <url2>... - Check multiple URLs
- *   node validate-jobs.js --file <file.json>     - Check URLs from JSON file (array or {jobs:[...]})
+ *   node scraper/validate-jobs.js <CIF>                   - Query API and validate all jobs for a CIF
+ *   node scraper/validate-jobs.js --url <url>             - Check a single URL
+ *   node scraper/validate-jobs.js --urls <url1> <url2>... - Check multiple URLs
+ *   node scraper/validate-jobs.js --file <file.json>     - Check URLs from JSON file (array or {jobs:[...]})
  */
 
 import fs from "fs";
+import { querySOLR, deleteJobByUrl } from "./api.js";
 import { validateByContent } from "./job-validator.js";
 
 async function checkUrls(urls) {
@@ -61,7 +62,6 @@ async function checkUrls(urls) {
 async function validateJobs(cif) {
   console.log("=== Validate Job URLs ===\n");
   
-  const { querySOLR } = await import("./api.js");
   const result = await querySOLR(cif);
   const urls = result.docs.map(doc => doc.url);
   
@@ -90,8 +90,6 @@ async function loadUrlsFromFile(filePath) {
 }
 
 async function deleteExpiredJobs(expiredJobs) {
-  const { deleteJobByUrl } = await import("./api.js");
-  
   console.log(`\nDeleting ${expiredJobs.length} expired jobs...`);
   
   for (const job of expiredJobs) {
@@ -129,16 +127,16 @@ const help = `
 Job URL Validator
 
 Usage:
-  node validate-jobs.js <CIF>                    - Query Solr and validate all jobs for a company
-  node validate-jobs.js --url <url>              - Check a single URL
-  node validate-jobs.js --urls <url1> <url2>... - Check multiple URLs  
-  node validate-jobs.js --file <file.json>       - Check URLs from JSON file
+  node scraper/validate-jobs.js <CIF>                    - Query API and validate all jobs for a company
+  node scraper/validate-jobs.js --url <url>              - Check a single URL
+  node scraper/validate-jobs.js --urls <url1> <url2>... - Check multiple URLs  
+  node scraper/validate-jobs.js --file <file.json>       - Check URLs from JSON file
 
 Examples:
-  node validate-jobs.js 13049596                 - Validate AXON SOFT jobs
-  node validate-jobs.js --url "https://axon-soft.com/en/vacancy/123_test"
-  node validate-jobs.js --urls "url1" "url2" "url3"
-  node validate-jobs.js --file jobs.json
+  node scraper/validate-jobs.js 13049596                 - Validate AXON SOFT jobs
+  node scraper/validate-jobs.js --url "https://axon-soft.com/en/vacancy/123_test"
+  node scraper/validate-jobs.js --urls "url1" "url2" "url3"
+  node scraper/validate-jobs.js --file jobs.json
 `;
 
 async function main() {

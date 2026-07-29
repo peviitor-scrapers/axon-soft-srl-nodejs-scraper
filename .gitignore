@@ -44,6 +44,9 @@ company_data.json
 delete.json
 epam_response.json
 
+# Root-level cache files (should not be committed)
+company.json
+
 # Credentials (NEVER commit these)
 *.pem
 *.key
