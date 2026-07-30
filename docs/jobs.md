@@ -7,14 +7,21 @@
 | CIF | 13049596 |
 | Brand | AXON SOFT |
 | Status | activ |
-| Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
+| Location | Cluj-Napoca |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-07-29 |
+| Last Scraped | 2026-07-30 |
 
-## Current Job Listings (9)
+## Current Job Listings (10)
 
-_Generated: 2026-07-29T05:51:55.349Z_
+_Generated: 2026-07-30T08:37:36.166Z_
+
+### .NET Backend Developer
+
+- **URL:** [https://axon-soft.com/dotnet-backend-developer/](https://axon-soft.com/dotnet-backend-developer/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
 
 ### QA Automation Engineer
 
