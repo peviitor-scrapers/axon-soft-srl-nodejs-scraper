@@ -10,11 +10,11 @@
 | Location | Cluj-Napoca |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-07-30 |
+| Last Scraped | 2026-07-31 |
 
-## Current Job Listings (10)
+## Current Job Listings (9)
 
-_Generated: 2026-07-30T08:37:36.166Z_
+_Generated: 2026-07-31T09:00:10.456Z_
 
 ### .NET Backend Developer
 
@@ -77,10 +77,4 @@ _Generated: 2026-07-30T08:37:36.166Z_
 - **URL:** [https://axon-soft.com/java-developers/](https://axon-soft.com/java-developers/)
 - **Work Mode:** hybrid
 - **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### PROGRAMATOR
-
-- **URL:** [https://mediere.anofm.ro/app/module/mediere/job/3320628](https://mediere.anofm.ro/app/module/mediere/job/3320628)
-- **Location:** CLUJ-NAPOCA
 - **Status:** scraped
