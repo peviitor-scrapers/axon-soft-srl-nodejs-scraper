@@ -26,6 +26,47 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Ensure company exists in company core
+        run: |
+          CIF=$(jq -r '.id' scraper/config/company.json)
+          LEGAL_NAME=$(jq -r '.company' scraper/config/company.json)
+          BRAND=$(jq -r '.brand' scraper/config/company.json)
+          WEBSITE=$(jq -r '.website[0]' scraper/config/company.json)
+          CAREER=$(jq -r '.career[0]' scraper/config/company.json)
+          DEFAULT_LOC=$(jq -r '.location[0]' scraper/config/company.json)
+          SCRAPER_FILE=$(jq -r '.scraperFile' scraper/config/company.json)
+          TODAY=$(date -u +%Y-%m-%d)
+
+          echo "Upserting ${BRAND} (CIF: ${CIF}) via peviitor API..."
+          jq -n \
+            --arg id "$CIF" \
+            --arg company "$LEGAL_NAME" \
+            --arg brand "$BRAND" \
+            --arg website "$WEBSITE" \
+            --arg career "$CAREER" \
+            --arg loc "$DEFAULT_LOC" \
+            --arg today "$TODAY" \
+            --arg scraperFile "$SCRAPER_FILE" \
+            '{id:$id,company:$company,brand:$brand,status:"activ",location:[$loc],website:[$website],career:[$career],lastScraped:$today,scraperFile:$scraperFile}' \
+            > company_data.json
+
+          curl -s -X PUT \
+            "https://api.peviitor.ro/v1/firme/company/add/" \
+            -H "Content-Type: application/json" \
+            --data-binary @company_data.json
+
+          FINAL=$(curl -s \
+            "https://api.peviitor.ro/v1/firme/company/?cif=${CIF}" | jq '.total')
+
+          echo "${BRAND} count after upsert: $FINAL"
+
+          if [ "$FINAL" -ge "1" ]; then
+            echo "SUCCESS: ${BRAND} is in company core"
+          else
+            echo "FAILED: ${BRAND} still not in company core"
+            exit 1
+          fi
+
       - name: Pre-scrape — Unit Tests
         run: |
           npm run test:unit
@@ -74,7 +115,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/test-results/
+          git add docs/test-results/ || true
           git add docs/jobs.md || true
           git commit -m "[skip ci] Update test results" || echo "No changes to commit"
           git push || echo "Push failed (race condition) — will be picked up next run"

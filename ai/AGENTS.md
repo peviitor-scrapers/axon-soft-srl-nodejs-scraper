@@ -2,7 +2,7 @@
 
 ## 🌱 This Repo Is a Derived Scraper
 
-Aceste instrucțiuni sunt pentru agenții AI care întrețin acest scraper Axon Soft. A fost derivat din [template-ul AXON SOFT Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
+Aceste instrucțiuni sunt pentru agenții AI care întrețin acest scraper Axon Soft. A fost derivat din [template-ul EPAM Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
 
 ## Company Identity
 

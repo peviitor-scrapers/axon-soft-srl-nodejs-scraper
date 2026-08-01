@@ -1,0 +1,7 @@
+{
+  "anofmApiUrl": "https://mediere.anofm.ro/api/entity/vw_public_job_posting",
+  "anofmJobUrlPrefix": "https://mediere.anofm.ro/app/module/mediere/job/",
+  "internshipUrl": "https://axon-soft.com/internship/",
+  "internshipApplyUrl": "mailto:internship@axonsoft.ro",
+  "timeout": 10000
+}

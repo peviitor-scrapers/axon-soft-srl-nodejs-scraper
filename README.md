@@ -13,7 +13,7 @@
 
 **job_seeker_ro_spider** — un scraper pentru job-urile Axon Soft din România. Extrage anunțurile de pe [axon-soft.com/careers/](https://axon-soft.com/careers/) și le publică în [peviitor.ro](https://peviitor.ro) prin API-ul Peviitor.
 
-> **🌱 Acest repozitoriu este un scraper derivat.** A fost generat din template-ul [AXON SOFT Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
+> **🌱 Acest repozitoriu este un scraper derivat.** A fost generat din template-ul [EPAM Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
 
 ## Overview
 

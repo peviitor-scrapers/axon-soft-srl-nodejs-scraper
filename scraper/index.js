@@ -3,12 +3,13 @@ import * as cheerio from "cheerio";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import { validateAndGetCompany } from "./company.js";
-import { querySOLR, deleteJobByUrl, upsertJobs, upsertCompany } from "./api.js";
+import { querySOLR, deleteJobByUrl, deleteJobsByCIF, upsertJobs, upsertCompany } from "./api.js";
 import { generateJobsMarkdown } from "./markdown-generator.js";
 import companyConfig from "./config/company.js";
+import scraperConfig from "./config/scraper.js";
 
 const COMPANY_CIF = companyConfig.id;
-const TIMEOUT = 10000;
+const TIMEOUT = scraperConfig.timeout;
 let COMPANY_NAME = null;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -23,9 +24,9 @@ async function searchANOFM(cif) {
       sort: { created_at: "desc" },
       employer_tax_code: cif
     };
-    const res = await fetch("https://mediere.anofm.ro/api/entity/vw_public_job_posting", {
+    const res = await fetch(scraperConfig.anofmApiUrl, {
       method: "POST",
-      timeout: TIMEOUT,
+      signal: AbortSignal.timeout(TIMEOUT),
       headers: {
         "Content-Type": "application/json",
         "User-Agent": "job_seeker_ro_spider"
@@ -41,7 +42,7 @@ async function searchANOFM(cif) {
       const locationParts = (row.address_locality_name || '').split('>').map(s => s.trim());
       const location = locationParts.length > 1 ? locationParts[locationParts.length - 1] : locationParts[0];
       jobs.push({
-        url: `https://mediere.anofm.ro/app/module/mediere/job/${row.id}`,
+        url: `${scraperConfig.anofmJobUrlPrefix}${row.id}`,
         title: row.occupation,
         location: location ? [location] : undefined,
         source: "ANOFM"
@@ -61,7 +62,7 @@ async function fetchCareerPage() {
       "User-Agent": "job_seeker_ro_spider",
       "Accept": "text/html"
     },
-    timeout: TIMEOUT
+    signal: AbortSignal.timeout(TIMEOUT)
   });
   if (!res.ok) {
     throw new Error(`Career page returned ${res.status}`);
@@ -77,7 +78,7 @@ async function fetchJobDetail(url) {
         "User-Agent": "job_seeker_ro_spider",
         "Accept": "text/html"
       },
-      timeout: TIMEOUT
+      signal: AbortSignal.timeout(TIMEOUT)
     });
     if (!res.ok) {
       console.log(`  Job detail returned ${res.status}`);
@@ -121,13 +122,9 @@ function parseJobDetail(html, baseJob) {
   };
 }
 
-async function scrapeAllListings(testOnlyOnePage = false) {
+async function scrapeAllListings() {
   const html = await fetchCareerPage();
   const jobListings = parseCareerPage(html);
-
-  if (testOnlyOnePage) {
-    return jobListings.slice(0, 2);
-  }
 
   const allJobs = [];
   for (const job of jobListings) {
@@ -217,8 +214,6 @@ function transformJobsForSOLR(payload) {
 }
 
 async function main() {
-  const testOnlyOnePage = process.argv.includes("--test");
-
   try {
     fs.mkdirSync("tmp", { recursive: true });
     console.log("=== Step 1: Get existing jobs count ===");
@@ -251,20 +246,18 @@ async function main() {
       console.log(`Note: Could not upsert company: ${err.message}`);
     }
 
-    const rawJobs = await scrapeAllListings(testOnlyOnePage);
+    const rawJobs = await scrapeAllListings();
     const scrapedCount = rawJobs.length;
     console.log(`📊 Jobs scraped from Axon Soft careers website: ${scrapedCount}`);
 
-    if (!testOnlyOnePage) {
-      const anofmJobs = await searchANOFM(localCif);
-      const anofmCount = anofmJobs.length;
-      for (const job of anofmJobs) {
-        if (!rawJobs.find(j => j.url === job.url)) {
-          rawJobs.push(job);
-        }
+    const anofmJobs = await searchANOFM(localCif);
+    const anofmCount = anofmJobs.length;
+    for (const job of anofmJobs) {
+      if (!rawJobs.find(j => j.url === job.url)) {
+        rawJobs.push(job);
       }
-      console.log(`📊 Jobs added from ANOFM: ${anofmCount}`);
     }
+    console.log(`📊 Jobs added from ANOFM: ${anofmCount}`);
 
     const jobs = rawJobs.map(job => mapToJobModel(job, localCif));
 

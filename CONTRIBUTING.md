@@ -1,10 +1,10 @@
 # Contributing to Axon Soft Scraper
 
-Acest scraper face parte din ecosistemul [peviitor.ro](https://peviitor.ro). A fost derivat din [template-ul AXON SOFT Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
+Acest scraper face parte din ecosistemul [peviitor.ro](https://peviitor.ro). A fost derivat din [template-ul EPAM Systems International SRL](https://github.com/sebiboga/epam-systems-international-srl-nodejs-scraper).
 
 ## About Derived Scrapers
 
-This is a **derived scraper** — it was created from the AXON SOFT template and customized for Axon Soft. All derived scrapers share the same architecture:
+This is a **derived scraper** — it was created from the EPAM template and customized for Axon Soft. All derived scrapers share the same architecture:
 
 - `config/company.json` — single source of truth for company identity
 - `index.js` — company-specific scraping logic

@@ -49,9 +49,7 @@ import companyConfig from '../../scraper/config/company.js';
 const COMPANY_BRAND = companyConfig.brand;
 const COMPANY_NAME = companyConfig.company;
 
-beforeAll(async () => {
-  [HAS_API, HAS_ANAF] = await Promise.all([checkApiAvailability(), checkAnafAvailability()]);
-});
+[HAS_API, HAS_ANAF] = await Promise.all([checkApiAvailability(), checkAnafAvailability()]);
 
 describe('Integration: API Workflow', () => {
 
@@ -59,7 +57,7 @@ describe('Integration: API Workflow', () => {
     let anaf;
 
     beforeAll(async () => {
-      anaf = await import('../../scraper/company-data.js');
+      anaf = await import('../../scraper/anaf.js');
     });
 
     itIfAnaf('should search for company brand and find the company', async () => {
@@ -221,7 +219,7 @@ describe('Integration: API Workflow', () => {
     let api;
 
     beforeAll(async () => {
-      anaf = await import('../../scraper/company-data.js');
+      anaf = await import('../../scraper/anaf.js');
       companyModule = await import('../../scraper/company.js');
       api = await import('../../scraper/api.js');
     });

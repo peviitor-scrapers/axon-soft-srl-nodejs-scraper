@@ -51,9 +51,7 @@ const TEST_BRAND = companyConfig.brand;
 const COMPANY_NAME = companyConfig.company;
 const CAREER_URL = companyConfig.career[0];
 
-beforeAll(async () => {
-  [HAS_API, HAS_ANAF] = await Promise.all([checkApiAvailability(), checkAnafAvailability()]);
-});
+[HAS_API, HAS_ANAF] = await Promise.all([checkApiAvailability(), checkAnafAvailability()]);
 
 describe('E2E: Full Scraping Pipeline', () => {
 
@@ -156,7 +154,7 @@ describe('E2E: Full Scraping Pipeline', () => {
     let company;
 
     beforeAll(async () => {
-      anaf = await import('../../scraper/company-data.js');
+      anaf = await import('../../scraper/anaf.js');
       company = await import('../../scraper/company.js');
     }, 60000);
 
@@ -194,7 +192,7 @@ describe('E2E: Full Scraping Pipeline', () => {
     let anaf;
 
     beforeAll(async () => {
-      anaf = await import('../../scraper/company-data.js');
+      anaf = await import('../../scraper/anaf.js');
     });
 
     itIfAnaf('should detect inactive/radiated companies via ANAF', async () => {

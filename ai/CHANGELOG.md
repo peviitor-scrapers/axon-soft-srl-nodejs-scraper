@@ -3,7 +3,7 @@
 ## [1.0.0] — 2026-06-21
 
 ### Added
-- Scraper derivat din template-ul AXON SOFT Systems International SRL
+- Scraper derivat din template-ul EPAM Systems International SRL
 - Scraping job-uri de pe Axon Soft Careers (https://axon-soft.com/careers/) folosind cheerio
 - CIF: 13049596
 - Localizare: Cluj-Napoca

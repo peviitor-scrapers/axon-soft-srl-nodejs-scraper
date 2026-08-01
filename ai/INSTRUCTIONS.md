@@ -133,15 +133,15 @@ generateJobsMarkdown() → docs/jobs.md
 | `scraper/company.js` | Validates company via ANAF + Peviitor; caches in root `company.json` (7-day TTL) |
 | `scraper/api.js` | Peviitor API operations module - query, delete, upsert jobs + standalone commands |
 | `scraper/validate-jobs.js` | Manual deep validator (content-aware); thin CLI wrapper over `job-validator.js` |
-| `scraper/company-data.js` | ANAF API core module - searchCompany(brand) and getCompanyFromANAF(cif) with cuiscan.ro fallback (no retries) |
+| `scraper/anaf.js` | ANAF API core module - searchCompany(brand) and getCompanyFromANAF(cif) with cuiscan.ro fallback (no retries) |
 | `scraper/markdown-generator.js` | Generates `docs/jobs.md` with company info and all scraped jobs |
 | `scraper/job-validator.js` | Shared validation primitives: `validateByHead`, `validateByContent`, `DEFAULT_EXPIRED_KEYWORDS` |
-| `scraper/demoanaf.js` | CLI entry point for ANAF module (thin wrapper around company-data.js) |
+| `scraper/demoanaf.js` | CLI entry point for ANAF module (thin wrapper around scraper/anaf.js) |
 | `tests/validate-axon-soft-jobs.js` | CI fast validator (HEAD only); thin CLI over `job-validator.js` + `api.js` |
 | `tests/unit/index.test.js` | Unit tests for parseApiJobs, mapToJobModel, transformJobsForSOLR |
 | `tests/unit/company.test.js` | Unit tests for validateAndGetCompany and fallback caching |
 | `tests/unit/api.test.js` | Unit tests for API query, upsert, delete operations |
-| `tests/unit/company-data.test.js` | Unit tests for ANAF/CUIScan search and company retrieval |
+| `tests/unit/demoanaf.test.js` | Unit tests for ANAF/CUIScan search and company retrieval |
 | `tests/integration/workflow.test.js` | Live integration tests - ANAF + Peviitor API |
 | `tests/e2e/scraper.test.js` | End-to-end tests with real AXON SOFT API |
 | `tests/consistency/public.test.js` | Verifies repo is public on GitHub |
@@ -162,11 +162,10 @@ The scraper is intentionally slow to be a good citizen:
 
 | Setting | Value | Where |
 |---------|-------|-------|
-| Delay between pages | 1000 ms | `index.js` — `sleep(1000)` in `scrapeAllListings()` |
-| Page size | 10 jobs | `index.js` — `PAGE_SIZE` constant |
-| Max pages | 10 | `index.js` — `MAX_PAGES` in `scrapeAllListings()` |
+| Delay between job details | 1000 ms | `index.js` — `sleep(1000)` in `scrapeAllListings()` |
+| Pagination | none (careers page HTML) | `index.js` — `.fusion-panel` panels on `careers/` |
 | Request timeout | 10000 ms | `index.js` — `TIMEOUT` constant |
-| ANAF attempts | 1 try ANAF → 1 try CUIScan fallback | `company-data.js` |
+| ANAF attempts | 1 try ANAF → 1 try CUIScan fallback | `anaf.js` |
 | Concurrency | 1 (sequential) | No `Promise.all` for paginated fetches |
 | User-Agent | `job_seeker_ro_spider` | Identifies the scraper in server logs |
 

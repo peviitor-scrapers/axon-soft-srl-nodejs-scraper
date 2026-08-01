@@ -33,11 +33,11 @@ job_seeker_ro_spider
 │   ├── index.js                    # Orchestrator principal
 │   ├── company.js                  # Validare companie (ANAF + Peviitor) cu cache 7 zile
 │   ├── api.js                      # Operații API Peviitor (query, upsert, delete)
-│   ├── company-data.js             # Modul ANAF API (search + company details)
+│   ├── anaf.js                       # Modul ANAF API (search + company details)
 │   ├── markdown-generator.js       # Generează docs/jobs.md după scrape
 │   ├── job-validator.js            # Primitivă comună: validateByHead, validateByContent
 │   ├── validate-jobs.js            # Validator manual de job-uri (deep check)
-│   └── demoanaf.js                 # CLI wrapper pentru company-data.js
+│   └── demoanaf.js                 # CLI wrapper pentru scraper/anaf.js
 ├── ROBOTS.md          # Analiză robots.txt și politici de scraping
 ├── tests/
 │   ├── unit/          # Teste unitare (API-uri mock-uite)
