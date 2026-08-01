@@ -118,7 +118,13 @@ jobs:
           git add docs/test-results/ || true
           git add docs/jobs.md || true
           git commit -m "[skip ci] Update test results" || echo "No changes to commit"
-          git push || echo "Push failed (race condition) — will be picked up next run"
+          for i in 1 2 3 4 5; do
+            git pull origin main --rebase -X theirs || true
+            git push && exit 0
+            echo "Push attempt $i failed (race condition), retrying..."
+            sleep 5
+          done
+          echo "Push failed after 5 attempts"
           
       - name: Upload jobs JSON
         if: always()
