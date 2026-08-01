@@ -14,7 +14,7 @@
 
 ## Current Job Listings (11)
 
-_Generated: 2026-08-01T07:27:43.721Z_
+_Generated: 2026-08-01T08:28:45.877Z_
 
 ### .NET Backend Developer
 
