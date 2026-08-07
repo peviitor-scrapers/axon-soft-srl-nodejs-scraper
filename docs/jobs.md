@@ -10,15 +10,22 @@
 | Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-08-06 |
+| Last Scraped | 2026-08-07 |
 
-## Current Job Listings (10)
+## Current Job Listings (11)
 
-_Generated: 2026-08-06T08:46:52.685Z_
+_Generated: 2026-08-07T07:25:07.352Z_
 
 ### .NET Backend Developer
 
 - **URL:** [https://axon-soft.com/dotnet-backend-developer/](https://axon-soft.com/dotnet-backend-developer/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Senior Full-Stack Developer
+
+- **URL:** [https://axon-soft.com/senior-full-stack-developer/](https://axon-soft.com/senior-full-stack-developer/)
 - **Work Mode:** hybrid
 - **Location:** Cluj-Napoca
 - **Status:** scraped
