@@ -10,11 +10,11 @@
 | Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-08-07 |
+| Last Scraped | 2026-08-08 |
 
-## Current Job Listings (11)
+## Current Job Listings (10)
 
-_Generated: 2026-08-07T07:25:07.352Z_
+_Generated: 2026-08-08T07:02:32.448Z_
 
 ### .NET Backend Developer
 
@@ -84,10 +84,4 @@ _Generated: 2026-08-07T07:25:07.352Z_
 - **URL:** [https://axon-soft.com/java-developers/](https://axon-soft.com/java-developers/)
 - **Work Mode:** hybrid
 - **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### PROGRAMATOR
-
-- **URL:** [https://mediere.anofm.ro/app/module/mediere/job/3320628](https://mediere.anofm.ro/app/module/mediere/job/3320628)
-- **Location:** CLUJ-NAPOCA
 - **Status:** scraped
