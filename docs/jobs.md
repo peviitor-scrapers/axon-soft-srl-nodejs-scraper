@@ -10,11 +10,11 @@
 | Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-10-01 |
+| Last Scraped | 2026-10-02 |
 
 ## Current Job Listings (11)
 
-_Generated: 2026-10-01T12:51:59.977Z_
+_Generated: 2026-10-02T12:14:51.850Z_
 
 ### Senior Java Backend Developer
 
