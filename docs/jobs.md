@@ -10,11 +10,32 @@
 | Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-10-12 |
+| Last Scraped | 2026-10-13 |
 
-## Current Job Listings (11)
+## Current Job Listings (10)
 
-_Generated: 2026-10-12T15:01:17.822Z_
+_Generated: 2026-10-13T13:56:28.523Z_
+
+### Senior Manual QA Engineer
+
+- **URL:** [https://axon-soft.com/qa-engineer-job/](https://axon-soft.com/qa-engineer-job/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Senior Angular Developer
+
+- **URL:** [https://axon-soft.com/angular-developer-job/](https://axon-soft.com/angular-developer-job/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
+
+### Senior iOS Developer
+
+- **URL:** [https://axon-soft.com/ios-developer/](https://axon-soft.com/ios-developer/)
+- **Work Mode:** hybrid
+- **Location:** Cluj-Napoca
+- **Status:** scraped
 
 ### Senior Java Backend Developer
 
@@ -58,37 +79,9 @@ _Generated: 2026-10-12T15:01:17.822Z_
 - **Location:** Cluj-Napoca
 - **Status:** scraped
 
-### Android Developer
+### Senior Android Developer
 
 - **URL:** [https://axon-soft.com/android-developer/](https://axon-soft.com/android-developer/)
-- **Work Mode:** hybrid
-- **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### Angular Developer
-
-- **URL:** [https://axon-soft.com/angular-developer-job/](https://axon-soft.com/angular-developer-job/)
-- **Work Mode:** hybrid
-- **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### QA Engineer
-
-- **URL:** [https://axon-soft.com/qa-engineer-job/](https://axon-soft.com/qa-engineer-job/)
-- **Work Mode:** hybrid
-- **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### Java full-stack developer
-
-- **URL:** [https://axon-soft.com/java-developer-job/](https://axon-soft.com/java-developer-job/)
-- **Work Mode:** hybrid
-- **Location:** Cluj-Napoca
-- **Status:** scraped
-
-### Java Developer
-
-- **URL:** [https://axon-soft.com/java-developers/](https://axon-soft.com/java-developers/)
 - **Work Mode:** hybrid
 - **Location:** Cluj-Napoca
 - **Status:** scraped
