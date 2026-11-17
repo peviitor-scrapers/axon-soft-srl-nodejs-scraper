@@ -10,11 +10,11 @@
 | Location | JUD. CLUJ, MUN. CLUJ-NAPOCA, BLD. 21 DECEMBRIE 1989, NR.126 |
 | Website | [https://axon-soft.com](https://axon-soft.com) |
 | Careers | [https://axon-soft.com/careers/](https://axon-soft.com/careers/) |
-| Last Scraped | 2026-11-16 |
+| Last Scraped | 2026-11-17 |
 
 ## Current Job Listings (10)
 
-_Generated: 2026-11-16T15:23:07.014Z_
+_Generated: 2026-11-17T15:46:34.912Z_
 
 ### Senior Manual QA Engineer
 
