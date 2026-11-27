@@ -140,6 +140,10 @@ export async function deleteJobByUrl(url) {
 }
 
 export async function upsertJobs(jobs) {
+  if (!Array.isArray(jobs) || jobs.length === 0) {
+    console.log("No jobs to upsert - skipping upload.");
+    return;
+  }
   const url = `${API_BASE_URL}/scraper/jobs/upload/`;
 
   const paddedJobs = jobs.map(job => ({
